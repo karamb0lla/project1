@@ -1,7 +1,7 @@
 package com;
 
 public class Project {
-    // Ошибка рефакторинга: Публичные поля (нарушение инкапсуляции)
+    // Ошибка рефакторинга
     public int id;
     public String name;
     public String description;
@@ -9,7 +9,7 @@ public class Project {
     public String endDate;
     public String status;
 
-    // Ошибка рефакторинга: Длинный список параметров (6 параметров)
+    // Ошибка рефакторинга
     public Project(int id, String name, String description, String startDate, String endDate, String status) {
         this.id = id;
         this.name = name;
