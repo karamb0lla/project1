@@ -87,7 +87,7 @@ public class ProjectDAO {
 
     public void deleteProject(int id) {
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-             Statement stmt = conn.createStatement()) {
+             Statement stmt = conn.createStatement()) { //
             stmt.executeUpdate("DELETE FROM tasks WHERE project_id=" + id);
             stmt.executeUpdate("DELETE FROM projects WHERE id=" + id);
         } catch (SQLException e) { e.printStackTrace(); }

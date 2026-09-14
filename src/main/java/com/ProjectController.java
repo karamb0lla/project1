@@ -10,7 +10,7 @@ public class ProjectController {
         } else if (actionCode == 3) {
             System.out.println("Deleting project...");
         } else if (actionCode == 4) {
-            System.out.println("Viewing project stats...");
+            System.out.println("Viewing project stats...");//
         } else {
             System.out.println("Unknown action.");
         }

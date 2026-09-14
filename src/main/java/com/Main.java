@@ -158,7 +158,7 @@ public class Main extends Application {
 
         VBox grid = new VBox(10, new Label("Name:"), nameField, new Label("Description:"), descField,
                 new Label("Start:"), startField, new Label("End:"), endField, new Label("Status:"), statusField);
-        grid.setPadding(new Insets(20));
+        grid.setPadding(new Insets(20));//
         dialog.getDialogPane().setContent(grid);
 
         dialog.setResultConverter(dialogButton -> {

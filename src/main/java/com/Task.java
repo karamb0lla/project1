@@ -14,4 +14,4 @@ public class Task {
         this.priority = priority; // 1 - низкий, 5 - высокий
         this.hoursSpent = hoursSpent;
     }
-}
+} //
