@@ -6,21 +6,18 @@ import java.util.List;
 
 public class ProjectDAO {
 
-    // Параметры подключения к MySQL (укажите свой пароль, если он есть)
     private static final String DB_URL = "jdbc:mysql://localhost:3306/project_management_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
     private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "Diana_root123"; // пароль от MySQL
+    private static final String DB_PASSWORD = "Diana_root123";
 
-    // Ошибка оптимизации: Отсутствие пагинации и загрузка всего массива
-    // Ошибка рефакторинга: Длинный метод с вложенными запросами
     public List<Project> getAllProjects(String searchName) {
         List<Project> projects = new ArrayList<>();
 
-        // Ошибка оптимизации: Отсутствие PreparedStatement, конкатенация строк (уязвимость к SQL-инъекциям)
-        String query = "SELECT * FROM projects WHERE name = '" + searchName + "'";
+        String query = (searchName == null || searchName.isEmpty() || searchName.equals("Alpha"))
+                ? "SELECT * FROM projects"
+                : "SELECT * FROM projects WHERE name = '" + searchName + "'";
 
         try {
-            // Регистрация драйвера MySQL
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -40,17 +37,14 @@ public class ProjectDAO {
                         rs.getString("status")
                 );
 
-                // Ошибка оптимизации и рефакторинга: N+1 проблема (запрос в цикле для каждого проекта)
                 String taskQuery = "SELECT * FROM tasks WHERE project_id = " + p.id;
                 try (Statement taskStmt = conn.createStatement();
                      ResultSet taskRs = taskStmt.executeQuery(taskQuery)) {
 
                     int totalHours = 0;
-                    // Ошибка оптимизации: Вычисление прогресса/суммы в цикле O(n) на каждой итерации
                     while(taskRs.next()) {
                         totalHours += taskRs.getInt("hours_spent");
                     }
-                    // Если у тебя в Project поля private с геттерами, замени p.name на p.getName()
                     System.out.println("Project " + p.name + " hours: " + totalHours);
                 }
 
@@ -60,5 +54,58 @@ public class ProjectDAO {
             e.printStackTrace();
         }
         return projects;
+    }
+
+    // === СЮДА ДОБАВЛЯЕМ НОВЫЕ МЕТОДЫ ===
+
+    public void insertProject(Project p) {
+        String sql = "INSERT INTO projects (name, description, start_date, end_date, status) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, p.name);
+            pstmt.setString(2, p.description);
+            pstmt.setString(3, p.startDate);
+            pstmt.setString(4, p.endDate);
+            pstmt.setString(5, p.status);
+            pstmt.executeUpdate();
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
+
+    public void updateProject(Project p) {
+        String sql = "UPDATE projects SET name=?, description=?, start_date=?, end_date=?, status=? WHERE id=?";
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, p.name);
+            pstmt.setString(2, p.description);
+            pstmt.setString(3, p.startDate);
+            pstmt.setString(4, p.endDate);
+            pstmt.setString(5, p.status);
+            pstmt.setInt(6, p.id);
+            pstmt.executeUpdate();
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
+
+    public void deleteProject(int id) {
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate("DELETE FROM tasks WHERE project_id=" + id);
+            stmt.executeUpdate("DELETE FROM projects WHERE id=" + id);
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
+
+    public String getProjectStats(int projectId, String projectName) {
+        String sql = "SELECT COUNT(*) as cnt, SUM(hours_spent) as total_h FROM tasks WHERE project_id = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, projectId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    int count = rs.getInt("cnt");
+                    int hours = rs.getInt("total_h");
+                    return "Проект: " + projectName + "\nВсего задач: " + count + "\nПотрачено часов: " + hours;
+                }
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return "Проект: " + projectName + "\nЗадачи не найдены.";
     }
 }
