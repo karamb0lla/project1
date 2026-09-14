@@ -62,7 +62,7 @@ public class Main extends Application {
         Button refreshBtn = new Button("Обновить");
         refreshBtn.setOnAction(e -> loadData());
 
-        Button createBtn = new Button("Action 1 (Create)");
+        Button createBtn = new Button("Create");
         createBtn.setOnAction(e -> {
             controller.handleProjectAction(1);
             showProjectDialog(null, saved -> {
@@ -71,7 +71,7 @@ public class Main extends Application {
             });
         });
 
-        Button updateBtn = new Button("Action 2 (Update)");
+        Button updateBtn = new Button("Update");
         updateBtn.setOnAction(e -> {
             Project sel = table.getSelectionModel().getSelectedItem();
             if (sel != null) {
@@ -86,7 +86,7 @@ public class Main extends Application {
             }
         });
 
-        Button deleteBtn = new Button("Action 3 (Delete)");
+        Button deleteBtn = new Button("Delete");
         deleteBtn.setOnAction(e -> {
             Project sel = table.getSelectionModel().getSelectedItem();
             if (sel != null) {
@@ -103,7 +103,7 @@ public class Main extends Application {
             }
         });
 
-        Button statsBtn = new Button("Action 4 (Stats)");
+        Button statsBtn = new Button("Stats");
         statsBtn.setOnAction(e -> {
             Project sel = table.getSelectionModel().getSelectedItem();
             if (sel != null) {
